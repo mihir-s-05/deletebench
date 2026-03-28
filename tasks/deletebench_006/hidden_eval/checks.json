@@ -1,0 +1,38 @@
+{
+  "probes": [
+    {
+      "category": "removal_completeness",
+      "failure_tags": [
+        "under_deletion"
+      ],
+      "kind": "path_absent",
+      "message": "The invites module should be removed.",
+      "path": "app/invites.py",
+      "probe_id": "invites_removed"
+    },
+    {
+      "category": "removal_completeness",
+      "failure_tags": [
+        "under_deletion"
+      ],
+      "kind": "path_absent",
+      "message": "The invite flag should be removed.",
+      "path": "app/config.py",
+      "probe_id": "invite_flag_removed"
+    },
+    {
+      "callable": "available_routes",
+      "category": "regression_safety",
+      "expected": [
+        "/team/members"
+      ],
+      "failure_tags": [
+        "over_deletion"
+      ],
+      "kind": "python_call",
+      "message": "Member routes should survive.",
+      "module": "app.api",
+      "probe_id": "member_routes_survive"
+    }
+  ]
+}

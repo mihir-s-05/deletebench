@@ -1,0 +1,7 @@
+{
+  "files": {
+    "app/__init__.py": "\"\"\"Task microrepo package.\"\"\"\n",
+    "app/dashboard.py": "def dashboard_cards() -> list[str]:\n    return [\"Overview\", \"Health\"]\n",
+    "tests/test_dashboard.py": "import unittest\n\nfrom app.dashboard import dashboard_cards\n\n\nclass DashboardTests(unittest.TestCase):\n    def test_surviving_cards(self) -> None:\n        self.assertEqual(dashboard_cards(), [\"Overview\", \"Health\"])\n"
+  }
+}

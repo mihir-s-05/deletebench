@@ -1,0 +1,8 @@
+{
+  "files": {
+    "app/__init__.py": "\"\"\"Task microrepo package.\"\"\"\n",
+    "app/api.py": "from app.members import list_members\n\ndef available_routes() -> list[str]:\n    return [\"/team/members\"]\n\ndef member_count() -> int:\n    return len(list_members())\n",
+    "app/members.py": "def list_members() -> list[str]:\n    return ['ana', 'lee']\n",
+    "tests/test_team.py": "import unittest\n\nfrom app.api import available_routes, member_count\n\n\nclass TeamTests(unittest.TestCase):\n    def test_members_survive(self) -> None:\n        self.assertEqual(available_routes(), [\"/team/members\"])\n        self.assertEqual(member_count(), 2)\n"
+  }
+}

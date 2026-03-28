@@ -1,0 +1,10 @@
+{
+  "files": {
+    "app/__init__.py": "\"\"\"Task microrepo package.\"\"\"\n",
+    "app/config.py": "IN_APP_NOTIFICATIONS_ENABLED = True\n",
+    "app/mail.py": "def format_email(subject: str, body: str) -> str:\n    return f\"Subject: {subject}\\n\\n{body}\"\n",
+    "app/notifications.py": "from app.config import IN_APP_NOTIFICATIONS_ENABLED\n\ndef available_channels() -> list[str]:\n    return [\"in_app\"] if IN_APP_NOTIFICATIONS_ENABLED else []\n\ndef send_in_app_notification(user: str, message: str) -> str:\n    return f\"in_app:{user}:{message}\"\n",
+    "app/worker.py": "from app.notifications import available_channels\n\ndef queued_jobs() -> list[str]:\n    return [\"in_app_notifications\"] if \"in_app\" in available_channels() else []\n",
+    "tests/test_notifications.py": "import unittest\n\nfrom app.mail import format_email\nfrom app.notifications import available_channels, send_in_app_notification\nfrom app.worker import queued_jobs\n\n\nclass NotificationTests(unittest.TestCase):\n    def test_in_app_survives(self) -> None:\n        self.assertEqual(available_channels(), [\"in_app\"])\n        self.assertEqual(send_in_app_notification(\"lee\", \"hi\"), \"in_app:lee:hi\")\n        self.assertEqual(queued_jobs(), [\"in_app_notifications\"])\n        self.assertEqual(format_email(\"hello\", \"body\"), \"Subject: hello\\n\\nbody\")\n"
+  }
+}

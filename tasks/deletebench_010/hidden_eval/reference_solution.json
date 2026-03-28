@@ -1,0 +1,7 @@
+{
+  "files": {
+    "app/__init__.py": "\"\"\"Task microrepo package.\"\"\"\n",
+    "app/notifiers.py": "def email(payload: str) -> str:\n    return f\"email:{payload}\"\n\ndef webhook(payload: str) -> str:\n    return f\"webhook:{payload}\"\n\nPROVIDERS = {\"email\": email, \"webhook\": webhook}\n\ndef available_providers() -> list[str]:\n    return sorted(PROVIDERS)\n\ndef notify(provider: str, payload: str) -> str:\n    return PROVIDERS[provider](payload)\n",
+    "tests/test_notifiers.py": "import unittest\n\nfrom app.notifiers import available_providers, notify\n\n\nclass NotifierTests(unittest.TestCase):\n    def test_surviving_providers(self) -> None:\n        self.assertEqual(available_providers(), [\"email\", \"webhook\"])\n        self.assertEqual(notify(\"webhook\", \"ping\"), \"webhook:ping\")\n"
+  }
+}

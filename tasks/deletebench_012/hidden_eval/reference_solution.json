@@ -1,0 +1,7 @@
+{
+  "files": {
+    "app/__init__.py": "\"\"\"Task microrepo package.\"\"\"\n",
+    "app/store.py": "class Database:\n    def get_user(self, user_id: str) -> dict[str, str]:\n        return {\"id\": user_id, \"name\": \"Ada\"}\n\nclass UserRepository:\n    def __init__(self) -> None:\n        self.database = Database()\n\n    def get_user(self, user_id: str) -> dict[str, str]:\n        return self.database.get_user(user_id)\n\ndef probe_lookup() -> dict[str, str]:\n    return UserRepository().get_user(\"9\")\n",
+    "tests/test_store.py": "import unittest\n\nfrom app.store import probe_lookup\n\n\nclass StoreTests(unittest.TestCase):\n    def test_lookup_survives(self) -> None:\n        self.assertEqual(probe_lookup(), {\"id\": \"9\", \"name\": \"Ada\"})\n"
+  }
+}

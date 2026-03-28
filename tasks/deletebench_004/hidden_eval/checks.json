@@ -1,0 +1,67 @@
+{
+  "probes": [
+    {
+      "category": "removal_completeness",
+      "failure_tags": [
+        "under_deletion"
+      ],
+      "kind": "string_absent",
+      "message": "The email notification flag should be removed.",
+      "path": "app/config.py",
+      "probe_id": "email_flag_removed",
+      "text": "EMAIL_NOTIFICATIONS_ENABLED"
+    },
+    {
+      "category": "removal_completeness",
+      "failure_tags": [
+        "under_deletion"
+      ],
+      "kind": "string_absent",
+      "message": "The email notification path should be removed.",
+      "path": "app/notifications.py",
+      "probe_id": "email_sender_removed",
+      "text": "send_email_notification"
+    },
+    {
+      "category": "removal_completeness",
+      "failure_tags": [
+        "under_deletion"
+      ],
+      "kind": "string_absent",
+      "message": "The email worker job should be removed.",
+      "path": "app/worker.py",
+      "probe_id": "email_job_removed",
+      "text": "email_notifications"
+    },
+    {
+      "callable": "available_channels",
+      "category": "regression_safety",
+      "expected": [
+        "in_app"
+      ],
+      "failure_tags": [
+        "over_deletion"
+      ],
+      "kind": "python_call",
+      "message": "In-app notifications should still work.",
+      "module": "app.notifications",
+      "probe_id": "in_app_survives"
+    },
+    {
+      "args": [
+        "subject",
+        "body"
+      ],
+      "callable": "format_email",
+      "category": "regression_safety",
+      "expected": "Subject: subject\n\nbody",
+      "failure_tags": [
+        "shared_abstraction_breakage"
+      ],
+      "kind": "python_call",
+      "message": "Shared mail helpers should still work.",
+      "module": "app.mail",
+      "probe_id": "mail_helper_survives"
+    }
+  ]
+}

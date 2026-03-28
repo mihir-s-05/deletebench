@@ -1,0 +1,41 @@
+{
+  "probes": [
+    {
+      "category": "removal_completeness",
+      "failure_tags": [
+        "under_deletion"
+      ],
+      "kind": "string_absent",
+      "message": "The cache layer should be removed.",
+      "path": "app/store.py",
+      "probe_id": "cache_class_removed",
+      "text": "class Cache"
+    },
+    {
+      "category": "removal_completeness",
+      "failure_tags": [
+        "under_deletion"
+      ],
+      "kind": "string_absent",
+      "message": "The repository should no longer depend on the cache layer.",
+      "path": "app/store.py",
+      "probe_id": "cache_usage_removed",
+      "text": "self.cache"
+    },
+    {
+      "callable": "probe_lookup",
+      "category": "regression_safety",
+      "expected": {
+        "id": "9",
+        "name": "Ada"
+      },
+      "failure_tags": [
+        "over_deletion"
+      ],
+      "kind": "python_call",
+      "message": "User lookup should still work.",
+      "module": "app.store",
+      "probe_id": "lookup_survives"
+    }
+  ]
+}

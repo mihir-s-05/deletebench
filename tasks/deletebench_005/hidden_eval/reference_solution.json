@@ -1,0 +1,9 @@
+{
+  "files": {
+    "app/__init__.py": "\"\"\"Task microrepo package.\"\"\"\n",
+    "app/api.py": "from app.reports import export_formats\n\ndef available_routes() -> list[str]:\n    routes = [\"/reports\"]\n    if \"json\" in export_formats():\n        routes.append(\"/reports/export/json\")\n    return routes\n",
+    "app/config.py": "JSON_EXPORT_ENABLED = True\n",
+    "app/reports.py": "from app.config import JSON_EXPORT_ENABLED\n\ndef export_formats() -> list[str]:\n    return [\"json\"] if JSON_EXPORT_ENABLED else []\n\ndef export_json(rows: list[dict[str, str]]) -> list[dict[str, str]]:\n    return list(rows)\n",
+    "tests/test_reports.py": "import unittest\n\nfrom app.api import available_routes\nfrom app.reports import export_formats, export_json\n\n\nclass ReportTests(unittest.TestCase):\n    def test_json_export_survives(self) -> None:\n        rows = [{\"name\": \"ana\", \"score\": \"9\"}]\n        self.assertEqual(export_formats(), [\"json\"])\n        self.assertEqual(export_json(rows), rows)\n        self.assertEqual(available_routes(), [\"/reports\", \"/reports/export/json\"])\n"
+  }
+}

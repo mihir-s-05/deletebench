@@ -1,0 +1,52 @@
+{
+  "probes": [
+    {
+      "category": "removal_completeness",
+      "failure_tags": [
+        "under_deletion"
+      ],
+      "kind": "path_absent",
+      "message": "The export module should be removed.",
+      "path": "app/export.py",
+      "probe_id": "export_file_removed"
+    },
+    {
+      "category": "removal_completeness",
+      "failure_tags": [
+        "under_deletion"
+      ],
+      "kind": "string_absent",
+      "message": "The export UI copy should be removed.",
+      "path": "app/ui.py",
+      "probe_id": "export_copy_removed",
+      "text": "Export"
+    },
+    {
+      "category": "removal_completeness",
+      "failure_tags": [
+        "under_deletion",
+        "dead_residue"
+      ],
+      "kind": "string_absent",
+      "message": "The export analytics event should be removed.",
+      "path": "app/analytics.py",
+      "probe_id": "export_analytics_removed",
+      "text": "export.opened"
+    },
+    {
+      "callable": "nav_items",
+      "category": "regression_safety",
+      "expected": [
+        "Dashboard",
+        "Settings"
+      ],
+      "failure_tags": [
+        "over_deletion"
+      ],
+      "kind": "python_call",
+      "message": "The surviving navigation items should still render.",
+      "module": "app.ui",
+      "probe_id": "export_settings_survive"
+    }
+  ]
+}

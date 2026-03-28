@@ -1,0 +1,7 @@
+{
+  "files": {
+    "app/__init__.py": "\"\"\"Task microrepo package.\"\"\"\n",
+    "app/parser.py": "def strict_parse(data: str) -> dict[str, str]:\n    if \":\" not in data:\n        raise ValueError(\"strict parser requires a colon\")\n    key, value = data.split(\":\", 1)\n    if key != \"id\":\n        raise ValueError(\"strict parser expects the id key\")\n    return {\"id\": value}\n\ndef parse(data: str) -> dict[str, str]:\n    return strict_parse(data)\n",
+    "tests/test_parser.py": "import unittest\n\nfrom app.parser import parse\n\n\nclass ParserTests(unittest.TestCase):\n    def test_strict_path_survives(self) -> None:\n        self.assertEqual(parse(\"id:42\"), {\"id\": \"42\"})\n"
+  }
+}

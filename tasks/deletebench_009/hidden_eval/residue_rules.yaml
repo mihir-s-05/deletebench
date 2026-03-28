@@ -1,0 +1,7 @@
+banned_patterns:
+  - "Not implemented"
+  - "TODO.*remove"
+  - "saml"
+forbidden_symbols:
+  - "saml"
+forbidden_paths:

@@ -1,0 +1,30 @@
+{
+  "probes": [
+    {
+      "category": "removal_completeness",
+      "failure_tags": [
+        "under_deletion"
+      ],
+      "kind": "string_absent",
+      "message": "The SAML provider should be removed.",
+      "path": "app/auth.py",
+      "probe_id": "saml_removed",
+      "text": "saml"
+    },
+    {
+      "callable": "available_providers",
+      "category": "regression_safety",
+      "expected": [
+        "oauth",
+        "password"
+      ],
+      "failure_tags": [
+        "shared_abstraction_breakage"
+      ],
+      "kind": "python_call",
+      "message": "The surviving providers should still be registered.",
+      "module": "app.auth",
+      "probe_id": "providers_survive"
+    }
+  ]
+}

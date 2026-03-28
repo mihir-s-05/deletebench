@@ -1,0 +1,7 @@
+{
+  "files": {
+    "app/__init__.py": "\"\"\"Task microrepo package.\"\"\"\n",
+    "app/auth.py": "def _password(token: str) -> str:\n    return f\"password:{token}\"\n\ndef _oauth(token: str) -> str:\n    return f\"oauth:{token}\"\n\nPROVIDERS = {\"password\": _password, \"oauth\": _oauth}\n\ndef available_providers() -> list[str]:\n    return sorted(PROVIDERS)\n\ndef authenticate(provider: str, token: str) -> str:\n    return PROVIDERS[provider](token)\n",
+    "tests/test_auth.py": "import unittest\n\nfrom app.auth import authenticate, available_providers\n\n\nclass AuthTests(unittest.TestCase):\n    def test_surviving_providers(self) -> None:\n        self.assertEqual(available_providers(), [\"oauth\", \"password\"])\n        self.assertEqual(authenticate(\"password\", \"token\"), \"password:token\")\n        self.assertEqual(authenticate(\"oauth\", \"token\"), \"oauth:token\")\n"
+  }
+}

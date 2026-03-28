@@ -1,0 +1,8 @@
+{
+  "files": {
+    "app/__init__.py": "\"\"\"Task microrepo package.\"\"\"\n",
+    "app/analytics.py": "EVENTS = [\"dashboard.opened\", \"settings.opened\"]\n\ndef tracked_events() -> list[str]:\n    return list(EVENTS)\n",
+    "app/ui.py": "NAV_ITEMS = [\"Dashboard\", \"Settings\"]\nMODALS = {\n    \"settings\": \"Settings panel\",\n}\n\ndef nav_items() -> list[str]:\n    return list(NAV_ITEMS)\n\ndef has_modal(name: str) -> bool:\n    return name in MODALS\n",
+    "tests/test_ui.py": "import unittest\n\nfrom app.ui import has_modal, nav_items\n\n\nclass UITests(unittest.TestCase):\n    def test_settings_survives(self) -> None:\n        self.assertEqual(nav_items(), [\"Dashboard\", \"Settings\"])\n        self.assertTrue(has_modal(\"settings\"))\n"
+  }
+}

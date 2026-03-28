@@ -1,0 +1,51 @@
+{
+  "probes": [
+    {
+      "category": "removal_completeness",
+      "failure_tags": [
+        "under_deletion"
+      ],
+      "kind": "string_absent",
+      "message": "The CSV export flag should be removed.",
+      "path": "app/config.py",
+      "probe_id": "csv_flag_removed",
+      "text": "CSV_EXPORT_ENABLED"
+    },
+    {
+      "category": "removal_completeness",
+      "failure_tags": [
+        "under_deletion"
+      ],
+      "kind": "string_absent",
+      "message": "The CSV export implementation should be removed.",
+      "path": "app/reports.py",
+      "probe_id": "csv_export_removed",
+      "text": "export_csv"
+    },
+    {
+      "category": "removal_completeness",
+      "failure_tags": [
+        "under_deletion"
+      ],
+      "kind": "string_absent",
+      "message": "The CSV export route should be removed.",
+      "path": "app/api.py",
+      "probe_id": "csv_route_removed",
+      "text": "/reports/export/csv"
+    },
+    {
+      "callable": "export_formats",
+      "category": "regression_safety",
+      "expected": [
+        "json"
+      ],
+      "failure_tags": [
+        "over_deletion"
+      ],
+      "kind": "python_call",
+      "message": "JSON export should still work.",
+      "module": "app.reports",
+      "probe_id": "json_survives"
+    }
+  ]
+}

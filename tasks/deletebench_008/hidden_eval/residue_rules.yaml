@@ -1,0 +1,9 @@
+banned_patterns:
+  - "Not implemented"
+  - "TODO.*remove"
+  - "ENABLE_AUDIT_PREVIEW"
+  - "Audit Preview"
+forbidden_symbols:
+  - "ENABLE_AUDIT_PREVIEW"
+forbidden_paths:
+  - "app/config.py"

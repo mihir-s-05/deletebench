@@ -1,0 +1,40 @@
+{
+  "probes": [
+    {
+      "category": "removal_completeness",
+      "failure_tags": [
+        "under_deletion"
+      ],
+      "kind": "path_absent",
+      "message": "The feature flag file should be removed.",
+      "path": "app/config.py",
+      "probe_id": "enable_beta_dashboard_flag_removed"
+    },
+    {
+      "category": "removal_completeness",
+      "failure_tags": [
+        "under_deletion"
+      ],
+      "kind": "string_absent",
+      "message": "The flagged branch should be removed.",
+      "path": "app/dashboard.py",
+      "probe_id": "enable_beta_dashboard_branch_removed",
+      "text": "Beta Insights"
+    },
+    {
+      "callable": "dashboard_cards",
+      "category": "regression_safety",
+      "expected": [
+        "Overview",
+        "Health"
+      ],
+      "failure_tags": [
+        "over_deletion"
+      ],
+      "kind": "python_call",
+      "message": "Stable dashboard cards should survive.",
+      "module": "app.dashboard",
+      "probe_id": "enable_beta_dashboard_survives"
+    }
+  ]
+}

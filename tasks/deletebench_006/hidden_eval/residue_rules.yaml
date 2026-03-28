@@ -1,0 +1,11 @@
+banned_patterns:
+  - "Not implemented"
+  - "TODO.*remove"
+  - "TEAM_INVITES_ENABLED"
+  - "invite:"
+forbidden_symbols:
+  - "create_invite"
+  - "TEAM_INVITES_ENABLED"
+forbidden_paths:
+  - "app/invites.py"
+  - "app/config.py"

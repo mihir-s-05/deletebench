@@ -1,0 +1,8 @@
+Remove the Slack notifier provider completely while preserving the notifier abstraction and the remaining providers.
+
+Requirements:
+- Remove the feature completely.
+- Do not leave placeholder stubs, fake deprecation notices, or "not implemented" paths.
+- Remove or update tests that only exist for the deleted feature.
+- Keep unrelated functionality working.
+- Clean up dead code, comments, docs, config, and flags related to the feature where appropriate.

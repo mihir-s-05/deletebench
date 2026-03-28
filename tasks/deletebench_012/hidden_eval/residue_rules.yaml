@@ -1,0 +1,8 @@
+banned_patterns:
+  - "Not implemented"
+  - "TODO.*remove"
+  - "class Cache"
+  - "self.cache"
+forbidden_symbols:
+  - "self.cache"
+forbidden_paths:

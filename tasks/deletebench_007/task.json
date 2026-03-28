@@ -1,0 +1,46 @@
+{
+  "category": "feature_flag_sunset",
+  "difficulty": "medium",
+  "entry_commit": "generated-v0",
+  "hidden_eval": {
+    "added_lines_slack": 6,
+    "allowed_touched_files": [
+      "app/config.py",
+      "app/dashboard.py",
+      "tests/test_dashboard.py"
+    ],
+    "commands": {
+      "build": "python3 -m compileall app tests",
+      "test": "python3 -m unittest discover -s tests -p 'test_*.py'"
+    },
+    "eval_script": "hidden_eval/eval.py",
+    "reference_solution": "hidden_eval/reference_solution.json",
+    "regression_probes": [
+      "enable_beta_dashboard_survives"
+    ],
+    "removal_probes": [
+      "enable_beta_dashboard_flag_removed",
+      "enable_beta_dashboard_branch_removed"
+    ],
+    "residue_checks": [
+      "banned_patterns",
+      "forbidden_symbols",
+      "forbidden_paths"
+    ],
+    "residue_rules": "hidden_eval/residue_rules.yaml",
+    "touched_file_slack": 1
+  },
+  "instruction": "Remove the beta insights feature flag completely, including flag plumbing and dead branches. Preserve the stable dashboard behavior.",
+  "mode": "pure_deletion",
+  "public_metadata": {
+    "approx_loc": 21,
+    "frameworks": [
+      "unittest"
+    ],
+    "languages": [
+      "Python"
+    ]
+  },
+  "repo_name": "micro_beta_dashboard",
+  "task_id": "deletebench_007"
+}

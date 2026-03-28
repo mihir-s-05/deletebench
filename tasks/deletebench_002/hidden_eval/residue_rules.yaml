@@ -1,0 +1,9 @@
+banned_patterns:
+  - "Not implemented"
+  - "TODO.*remove"
+  - "Changelog"
+  - "changelog.opened"
+forbidden_symbols:
+  - "changelog.opened"
+forbidden_paths:
+  - "app/changelog.py"

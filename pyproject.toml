@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deletebench"
+version = "0.1.0"
+description = "Outcome-based benchmark harness for subtractive engineering tasks"
+requires-python = ">=3.11"
+authors = [{name = "OpenAI"}]
+dependencies = []
+
+[project.optional-dependencies]
+dev = []
+
+[project.scripts]
+deletebench = "deletebench.cli:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["deletebench*"]

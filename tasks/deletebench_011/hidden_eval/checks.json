@@ -1,0 +1,43 @@
+{
+  "probes": [
+    {
+      "category": "removal_completeness",
+      "failure_tags": [
+        "under_deletion"
+      ],
+      "kind": "string_absent",
+      "message": "The legacy parser should be removed.",
+      "path": "app/parser.py",
+      "probe_id": "legacy_removed",
+      "text": "legacy_parse"
+    },
+    {
+      "category": "removal_completeness",
+      "failure_tags": [
+        "under_deletion"
+      ],
+      "kind": "string_absent",
+      "message": "The fallback branch should be removed.",
+      "path": "app/parser.py",
+      "probe_id": "fallback_removed",
+      "text": "except ValueError"
+    },
+    {
+      "args": [
+        "id:42"
+      ],
+      "callable": "parse",
+      "category": "regression_safety",
+      "expected": {
+        "id": "42"
+      },
+      "failure_tags": [
+        "over_deletion"
+      ],
+      "kind": "python_call",
+      "message": "Strict parsing should still work.",
+      "module": "app.parser",
+      "probe_id": "strict_survives"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "category": "ui_only_removal",
+  "difficulty": "easy",
+  "entry_commit": "generated-v0",
+  "hidden_eval": {
+    "added_lines_slack": 6,
+    "allowed_touched_files": [
+      "app/analytics.py",
+      "app/changelog.py",
+      "app/ui.py",
+      "tests/test_ui.py"
+    ],
+    "commands": {
+      "build": "python3 -m compileall app tests",
+      "test": "python3 -m unittest discover -s tests -p 'test_*.py'"
+    },
+    "eval_script": "hidden_eval/eval.py",
+    "reference_solution": "hidden_eval/reference_solution.json",
+    "regression_probes": [
+      "changelog_settings_survive"
+    ],
+    "removal_probes": [
+      "changelog_file_removed",
+      "changelog_copy_removed",
+      "changelog_analytics_removed"
+    ],
+    "residue_checks": [
+      "banned_patterns",
+      "forbidden_symbols",
+      "forbidden_paths"
+    ],
+    "residue_rules": "hidden_eval/residue_rules.yaml",
+    "touched_file_slack": 1
+  },
+  "instruction": "Remove the changelog UI feature completely. Preserve dashboard and settings behavior.",
+  "mode": "pure_deletion",
+  "public_metadata": {
+    "approx_loc": 36,
+    "frameworks": [
+      "unittest"
+    ],
+    "languages": [
+      "Python"
+    ]
+  },
+  "repo_name": "micro_changelog",
+  "task_id": "deletebench_002"
+}
