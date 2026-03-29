@@ -3,18 +3,14 @@
   "difficulty": "easy",
   "entry_commit": "generated-v0",
   "hidden_eval": {
-    "added_lines_slack": 6,
-    "allowed_touched_files": [
-      "app/analytics.py",
-      "app/changelog.py",
-      "app/ui.py",
-      "tests/test_ui.py"
-    ],
     "commands": {
       "build": "python3 -m compileall app tests",
       "test": "python3 -m unittest discover -s tests -p 'test_*.py'"
     },
     "eval_script": "hidden_eval/eval.py",
+    "max_added_lines": 20,
+    "max_files_changed": 4,
+    "max_touched_directories": 2,
     "reference_solution": "hidden_eval/reference_solution.json",
     "regression_probes": [
       "changelog_settings_survive"
@@ -29,8 +25,7 @@
       "forbidden_symbols",
       "forbidden_paths"
     ],
-    "residue_rules": "hidden_eval/residue_rules.yaml",
-    "touched_file_slack": 1
+    "residue_rules": "hidden_eval/residue_rules.json"
   },
   "instruction": "Remove the changelog UI feature completely. Preserve dashboard and settings behavior.",
   "mode": "pure_deletion",

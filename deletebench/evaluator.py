@@ -7,12 +7,7 @@ from pathlib import Path
 
 from deletebench.scoring import score_probe_results
 from deletebench.tasks.schemas import AgentResult, ProbeResult, Task
-from deletebench.utils.diff_utils import (
-    diff_directories,
-    diff_snapshots,
-    load_reference_snapshot,
-    snapshot_directory,
-)
+from deletebench.utils.diff_utils import diff_directories
 from deletebench.utils.residue import load_residue_rules, run_residue_checks
 from deletebench.utils.subprocess_utils import CommandResult, run_command
 
@@ -89,9 +84,48 @@ def run_hidden_eval(task: Task, repo_path: Path) -> tuple[list[ProbeResult], Com
         )
         return [probe], result
 
-    payload = json.loads(result.stdout)
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        probe = ProbeResult(
+            probe_id="hidden_eval_invalid_output",
+            passed=False,
+            category="spec_compliance",
+            message="Hidden evaluation script returned malformed JSON output.",
+            failure_tags=["spec_violation"],
+            metadata={
+                "error": str(exc),
+                "stdout": result.stdout[-1000:],
+                "stderr": result.stderr[-1000:],
+            },
+        )
+        return [probe], result
+
+    if not isinstance(payload, dict) or not isinstance(payload.get("probes"), list):
+        probe = ProbeResult(
+            probe_id="hidden_eval_invalid_payload",
+            passed=False,
+            category="spec_compliance",
+            message="Hidden evaluation script returned an invalid payload shape.",
+            failure_tags=["spec_violation"],
+            metadata={"payload_type": type(payload).__name__},
+        )
+        return [probe], result
+
     probes: list[ProbeResult] = []
     for item in payload.get("probes", []):
+        if not isinstance(item, dict):
+            probes.append(
+                ProbeResult(
+                    probe_id="hidden_eval_invalid_probe",
+                    passed=False,
+                    category="spec_compliance",
+                    message="Hidden evaluation returned a malformed probe entry.",
+                    failure_tags=["spec_violation"],
+                    metadata={"probe_type": type(item).__name__},
+                )
+            )
+            continue
         probes.append(
             ProbeResult(
                 probe_id=str(item["probe_id"]),
@@ -101,6 +135,23 @@ def run_hidden_eval(task: Task, repo_path: Path) -> tuple[list[ProbeResult], Com
                 weight=float(item.get("weight", 1.0)),
                 failure_tags=[str(tag) for tag in item.get("failure_tags", [])],
                 metadata=dict(item.get("metadata", {})),
+            )
+        )
+
+    expected_probe_ids = set(task.manifest.hidden_eval.removal_probes) | set(
+        task.manifest.hidden_eval.regression_probes
+    )
+    observed_probe_ids = {probe.probe_id for probe in probes}
+    missing_probe_ids = sorted(expected_probe_ids - observed_probe_ids)
+    if missing_probe_ids:
+        probes.append(
+            ProbeResult(
+                probe_id="hidden_eval_missing_declared_probes",
+                passed=False,
+                category="spec_compliance",
+                message="Hidden evaluation omitted declared removal/regression probes.",
+                failure_tags=["spec_violation"],
+                metadata={"missing_probe_ids": missing_probe_ids},
             )
         )
     return probes, result
@@ -148,66 +199,69 @@ def run_diff_hygiene_checks(task: Task, baseline_repo_path: Path, final_repo_pat
     metadata: dict[str, object] = {"candidate_diff": candidate_stats.to_dict()}
     probes: list[ProbeResult] = []
 
-    allowed_touched_files = list(task.manifest.hidden_eval.extra.get("allowed_touched_files", []))
-    allowed_set = set(allowed_touched_files)
-    touched_slack = int(task.manifest.hidden_eval.extra.get("touched_file_slack", 1))
-    outside_files = [path for path in candidate_stats.files_changed if allowed_set and path not in allowed_set]
+    max_files_changed = task.manifest.hidden_eval.extra.get("max_files_changed")
+    max_added_lines = task.manifest.hidden_eval.extra.get("max_added_lines")
+    max_touched_directories = task.manifest.hidden_eval.extra.get("max_touched_directories")
 
-    probes.append(
-        ProbeResult(
-            probe_id="diff_no_unrelated_files",
-            passed=not outside_files,
-            category="diff_hygiene",
-            message=(
-                "The diff stays within the expected blast radius."
-                if not outside_files
-                else f"The diff touches unrelated files: {outside_files[:5]}"
-            ),
-            failure_tags=["unrelated_rewrite"],
-            metadata={"outside_files": outside_files[:10], "allowed_touched_files": allowed_touched_files},
+    if max_files_changed is not None:
+        probes.append(
+            ProbeResult(
+                probe_id="diff_file_count_budget",
+                passed=len(candidate_stats.files_changed) <= int(max_files_changed),
+                category="diff_hygiene",
+                message=(
+                    "Touched file count stays within the task-authored budget."
+                    if len(candidate_stats.files_changed) <= int(max_files_changed)
+                    else f"Touched {len(candidate_stats.files_changed)} files; expected at most {int(max_files_changed)}."
+                ),
+                failure_tags=["unrelated_rewrite"],
+                metadata={
+                    "files_changed": candidate_stats.files_changed,
+                    "max_files_changed": int(max_files_changed),
+                },
+            )
         )
-    )
 
-    probes.append(
-        ProbeResult(
-            probe_id="diff_touched_file_budget",
-            passed=(len(candidate_stats.files_changed) <= len(allowed_touched_files) + touched_slack) if allowed_touched_files else True,
-            category="diff_hygiene",
-            message=(
-                "Touched file count stays within the expected budget."
-                if not allowed_touched_files or len(candidate_stats.files_changed) <= len(allowed_touched_files) + touched_slack
-                else f"Touched {len(candidate_stats.files_changed)} files; expected at most {len(allowed_touched_files) + touched_slack}."
-            ),
-            failure_tags=["unrelated_rewrite"],
-            metadata={"touched_files": candidate_stats.files_changed, "budget": len(allowed_touched_files) + touched_slack},
-        )
-    )
-
-    if task.reference_solution_path.exists():
-        reference_snapshot = load_reference_snapshot(task.reference_solution_path)
-        reference_stats = diff_snapshots(snapshot_directory(baseline_repo_path), reference_snapshot)
-        metadata["reference_diff"] = reference_stats.to_dict()
-        added_slack = int(task.manifest.hidden_eval.extra.get("added_lines_slack", 5))
+    if max_added_lines is not None:
         probes.append(
             ProbeResult(
                 probe_id="diff_added_line_budget",
-                passed=candidate_stats.added_lines <= reference_stats.added_lines + added_slack,
+                passed=candidate_stats.added_lines <= int(max_added_lines),
                 category="diff_hygiene",
                 message=(
-                    "Added line count stays within the expected budget."
-                    if candidate_stats.added_lines <= reference_stats.added_lines + added_slack
-                    else f"Added {candidate_stats.added_lines} lines; expected at most {reference_stats.added_lines + added_slack}."
+                    "Added line count stays within the task-authored budget."
+                    if candidate_stats.added_lines <= int(max_added_lines)
+                    else f"Added {candidate_stats.added_lines} lines; expected at most {int(max_added_lines)}."
                 ),
                 failure_tags=["unrelated_rewrite"],
                 metadata={
                     "candidate_added_lines": candidate_stats.added_lines,
-                    "reference_added_lines": reference_stats.added_lines,
-                    "budget": reference_stats.added_lines + added_slack,
+                    "max_added_lines": int(max_added_lines),
                 },
             )
         )
-    else:
-        metadata["reference_diff"] = None
+
+    if max_touched_directories is not None:
+        probes.append(
+            ProbeResult(
+                probe_id="diff_directory_budget",
+                passed=len(candidate_stats.touched_directories) <= int(max_touched_directories),
+                category="diff_hygiene",
+                message=(
+                    "Touched directory count stays within the task-authored budget."
+                    if len(candidate_stats.touched_directories) <= int(max_touched_directories)
+                    else (
+                        f"Touched {len(candidate_stats.touched_directories)} directories; "
+                        f"expected at most {int(max_touched_directories)}."
+                    )
+                ),
+                failure_tags=["unrelated_rewrite"],
+                metadata={
+                    "touched_directories": candidate_stats.touched_directories,
+                    "max_touched_directories": int(max_touched_directories),
+                },
+            )
+        )
 
     return probes, metadata
 

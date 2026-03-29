@@ -3,16 +3,14 @@
   "difficulty": "hard",
   "entry_commit": "generated-v0",
   "hidden_eval": {
-    "added_lines_slack": 6,
-    "allowed_touched_files": [
-      "app/store.py",
-      "tests/test_store.py"
-    ],
     "commands": {
       "build": "python3 -m compileall app tests",
       "test": "python3 -m unittest discover -s tests -p 'test_*.py'"
     },
     "eval_script": "hidden_eval/eval.py",
+    "max_added_lines": 40,
+    "max_files_changed": 6,
+    "max_touched_directories": 3,
     "reference_solution": "hidden_eval/reference_solution.json",
     "regression_probes": [
       "lookup_survives"
@@ -26,8 +24,7 @@
       "forbidden_symbols",
       "forbidden_paths"
     ],
-    "residue_rules": "hidden_eval/residue_rules.yaml",
-    "touched_file_slack": 1
+    "residue_rules": "hidden_eval/residue_rules.json"
   },
   "instruction": "Remove the cache layer completely and simplify the repository call graph without breaking lookups.",
   "mode": "deletion_with_repair",

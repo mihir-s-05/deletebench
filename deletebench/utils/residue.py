@@ -23,6 +23,8 @@ def load_residue_rules(path: str | Path) -> dict[str, list[str]]:
         return {}
     if raw_text.startswith("{"):
         payload = json.loads(raw_text)
+        if not isinstance(payload, dict):
+            raise ValueError("Residue rules JSON must be an object mapping rule groups to lists.")
         return {str(key): [str(item) for item in value] for key, value in payload.items()}
 
     rules: dict[str, list[str]] = {}

@@ -37,10 +37,26 @@ def _run_probe(probe: dict[str, object], repo_root: Path) -> dict[str, object]:
         if path is None:
             haystack = _all_text(repo_root)
         else:
-            haystack = (repo_root / str(path)).read_text(encoding="utf-8")
-        present = target in haystack
-        passed = not present if kind == "string_absent" else present
-        detail = f"Expected string {target!r} with kind {kind}."
+            target_path = repo_root / str(path)
+            if not target_path.exists():
+                if kind == "string_absent":
+                    haystack = ""
+                    detail = f"File {target_path.relative_to(repo_root)} is absent, which satisfies string_absent."
+                else:
+                    detail = f"Expected file {target_path.relative_to(repo_root)} to exist."
+                    haystack = None
+            else:
+                haystack = target_path.read_text(encoding="utf-8")
+        if haystack is None:
+            present = False
+            passed = False
+        else:
+            present = target in haystack
+            passed = not present if kind == "string_absent" else present
+            if kind == "string_absent":
+                detail = f"Expected string {target!r} to be absent."
+            else:
+                detail = f"Expected string {target!r} to be present."
     elif kind == "python_call":
         sys.path.insert(0, str(repo_root))
         module = importlib.import_module(str(probe["module"]))

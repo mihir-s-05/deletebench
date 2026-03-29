@@ -28,7 +28,7 @@ def score_probe_results(
     for category, component_weight in task.manifest.component_weights.items():
         total_weight = total_weights.get(category, 0.0)
         if total_weight == 0:
-            sub_scores[category] = round(component_weight, 2)
+            sub_scores[category] = 0.0
             continue
         sub_scores[category] = round(
             component_weight * (passed_weights.get(category, 0.0) / total_weight),

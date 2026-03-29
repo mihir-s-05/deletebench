@@ -1,0 +1,12 @@
+{
+  "banned_patterns": [
+    "Not implemented",
+    "TODO.*remove",
+    "class Cache",
+    "self.cache"
+  ],
+  "forbidden_paths": [],
+  "forbidden_symbols": [
+    "self.cache"
+  ]
+}

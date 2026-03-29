@@ -1,9 +1,0 @@
-banned_patterns:
-  - "Not implemented"
-  - "TODO.*remove"
-  - "Feedback"
-  - "feedback.opened"
-forbidden_symbols:
-  - "feedback.opened"
-forbidden_paths:
-  - "app/feedback.py"

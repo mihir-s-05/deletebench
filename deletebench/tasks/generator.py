@@ -6,7 +6,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from textwrap import dedent
 
-from deletebench.utils.diff_utils import diff_snapshots
+
+DEFAULT_DIFF_BUDGETS = {
+    "max_files_changed": 6,
+    "max_added_lines": 40,
+    "max_touched_directories": 3,
+}
 
 
 EVAL_SCRIPT = dedent(
@@ -50,10 +55,26 @@ EVAL_SCRIPT = dedent(
             if path is None:
                 haystack = _all_text(repo_root)
             else:
-                haystack = (repo_root / str(path)).read_text(encoding="utf-8")
-            present = target in haystack
-            passed = not present if kind == "string_absent" else present
-            detail = f"Expected string {target!r} with kind {kind}."
+                target_path = repo_root / str(path)
+                if not target_path.exists():
+                    if kind == "string_absent":
+                        haystack = ""
+                        detail = f"File {target_path.relative_to(repo_root)} is absent, which satisfies string_absent."
+                    else:
+                        detail = f"Expected file {target_path.relative_to(repo_root)} to exist."
+                        haystack = None
+                else:
+                    haystack = target_path.read_text(encoding="utf-8")
+            if haystack is None:
+                present = False
+                passed = False
+            else:
+                present = target in haystack
+                passed = not present if kind == "string_absent" else present
+                if kind == "string_absent":
+                    detail = f"Expected string {target!r} to be absent."
+                else:
+                    detail = f"Expected string {target!r} to be present."
         elif kind == "python_call":
             sys.path.insert(0, str(repo_root))
             module = importlib.import_module(str(probe["module"]))
@@ -143,6 +164,7 @@ class GeneratedTask:
     reference_files: dict[str, str]
     checks: list[dict[str, object]]
     residue_rules: dict[str, list[str]]
+    diff_budgets: dict[str, int] | None = None
 
 
 def _ui_task(task_id: str, repo_name: str, slug: str, label: str, event: str, difficulty: str) -> GeneratedTask:
@@ -287,6 +309,7 @@ def _ui_task(task_id: str, repo_name: str, slug: str, label: str, event: str, di
         reference_files=reference_files,
         checks=checks,
         residue_rules=residue_rules,
+        diff_budgets={"max_files_changed": 4, "max_added_lines": 20, "max_touched_directories": 2},
     )
 
 
@@ -314,6 +337,7 @@ def _module_task(
         reference_files=reference_files,
         checks=checks,
         residue_rules=residue_rules,
+        diff_budgets=dict(DEFAULT_DIFF_BUDGETS),
     )
 
 
@@ -1127,15 +1151,6 @@ def build_task_specs() -> list[GeneratedTask]:
     return tasks
 
 
-def _yaml_dump(rules: dict[str, list[str]]) -> str:
-    lines: list[str] = []
-    for key, values in rules.items():
-        lines.append(f"{key}:")
-        for value in values:
-            lines.append(f"  - {json.dumps(value)}")
-    return "\n".join(lines).rstrip() + "\n"
-
-
 def _write_files(base_dir: Path, files: dict[str, str]) -> None:
     for relative_path, content in files.items():
         destination = base_dir / relative_path
@@ -1165,7 +1180,9 @@ def generate_tasks(tasks_root: str | Path, *, force: bool = False) -> list[str]:
         (task_dir / "hidden_eval").mkdir(parents=True)
         _write_files(task_dir / "repo", task.repo_files)
 
-        diff_stats = diff_snapshots(task.repo_files, task.reference_files)
+        diff_budgets = dict(DEFAULT_DIFF_BUDGETS)
+        if task.diff_budgets:
+            diff_budgets.update(task.diff_budgets)
         manifest = {
             "task_id": task.task_id,
             "repo_name": task.repo_name,
@@ -1184,11 +1201,9 @@ def generate_tasks(tasks_root: str | Path, *, force: bool = False) -> list[str]:
                 "regression_probes": [probe["probe_id"] for probe in task.checks if probe["category"] == "regression_safety"],
                 "residue_checks": list(task.residue_rules.keys()),
                 "eval_script": "hidden_eval/eval.py",
-                "residue_rules": "hidden_eval/residue_rules.yaml",
+                "residue_rules": "hidden_eval/residue_rules.json",
                 "reference_solution": "hidden_eval/reference_solution.json",
-                "allowed_touched_files": diff_stats.files_changed,
-                "touched_file_slack": 1,
-                "added_lines_slack": 6,
+                **diff_budgets,
             },
         }
         (task_dir / "task.json").write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8")
@@ -1196,6 +1211,6 @@ def generate_tasks(tasks_root: str | Path, *, force: bool = False) -> list[str]:
         (task_dir / "hidden_eval" / "eval.py").write_text(EVAL_SCRIPT, encoding="utf-8")
         (task_dir / "hidden_eval" / "checks.json").write_text(json.dumps({"probes": task.checks}, indent=2, sort_keys=True), encoding="utf-8")
         (task_dir / "hidden_eval" / "reference_solution.json").write_text(json.dumps({"files": task.reference_files}, indent=2, sort_keys=True), encoding="utf-8")
-        (task_dir / "hidden_eval" / "residue_rules.yaml").write_text(_yaml_dump(task.residue_rules), encoding="utf-8")
+        (task_dir / "hidden_eval" / "residue_rules.json").write_text(json.dumps(task.residue_rules, indent=2, sort_keys=True), encoding="utf-8")
         generated.append(task.task_id)
     return generated

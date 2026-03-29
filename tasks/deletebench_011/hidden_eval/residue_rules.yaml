@@ -1,7 +1,0 @@
-banned_patterns:
-  - "Not implemented"
-  - "TODO.*remove"
-  - "legacy_parse"
-forbidden_symbols:
-  - "legacy_parse"
-forbidden_paths:

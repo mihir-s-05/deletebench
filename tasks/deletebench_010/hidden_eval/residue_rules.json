@@ -1,0 +1,11 @@
+{
+  "banned_patterns": [
+    "Not implemented",
+    "TODO.*remove",
+    "slack"
+  ],
+  "forbidden_paths": [],
+  "forbidden_symbols": [
+    "slack"
+  ]
+}

@@ -13,6 +13,8 @@ DEFAULT_COMPONENT_WEIGHTS: dict[str, float] = {
     "spec_compliance": 10.0,
 }
 
+REQUIRED_EVALUATION_CATEGORIES = frozenset(DEFAULT_COMPONENT_WEIGHTS)
+
 
 @dataclass(slots=True)
 class ProbeResult:

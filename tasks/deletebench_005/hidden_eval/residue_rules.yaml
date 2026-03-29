@@ -1,9 +1,0 @@
-banned_patterns:
-  - "Not implemented"
-  - "TODO.*remove"
-  - "CSV_EXPORT_ENABLED"
-  - "/reports/export/csv"
-forbidden_symbols:
-  - "export_csv"
-  - "CSV_EXPORT_ENABLED"
-forbidden_paths:

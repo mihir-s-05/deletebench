@@ -1,9 +1,0 @@
-banned_patterns:
-  - "Not implemented"
-  - "TODO.*remove"
-  - "Export"
-  - "export.opened"
-forbidden_symbols:
-  - "export.opened"
-forbidden_paths:
-  - "app/export.py"

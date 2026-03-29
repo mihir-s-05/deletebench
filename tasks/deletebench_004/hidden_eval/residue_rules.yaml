@@ -1,9 +1,0 @@
-banned_patterns:
-  - "Not implemented"
-  - "TODO.*remove"
-  - "EMAIL_NOTIFICATIONS_ENABLED"
-  - "email_notifications"
-forbidden_symbols:
-  - "send_email_notification"
-  - "EMAIL_NOTIFICATIONS_ENABLED"
-forbidden_paths:

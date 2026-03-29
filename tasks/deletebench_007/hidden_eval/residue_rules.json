@@ -1,0 +1,14 @@
+{
+  "banned_patterns": [
+    "Not implemented",
+    "TODO.*remove",
+    "ENABLE_BETA_DASHBOARD",
+    "Beta Insights"
+  ],
+  "forbidden_paths": [
+    "app/config.py"
+  ],
+  "forbidden_symbols": [
+    "ENABLE_BETA_DASHBOARD"
+  ]
+}

@@ -3,16 +3,14 @@
   "difficulty": "medium",
   "entry_commit": "generated-v0",
   "hidden_eval": {
-    "added_lines_slack": 6,
-    "allowed_touched_files": [
-      "app/notifiers.py",
-      "tests/test_notifiers.py"
-    ],
     "commands": {
       "build": "python3 -m compileall app tests",
       "test": "python3 -m unittest discover -s tests -p 'test_*.py'"
     },
     "eval_script": "hidden_eval/eval.py",
+    "max_added_lines": 40,
+    "max_files_changed": 6,
+    "max_touched_directories": 3,
     "reference_solution": "hidden_eval/reference_solution.json",
     "regression_probes": [
       "notifier_survives"
@@ -25,8 +23,7 @@
       "forbidden_symbols",
       "forbidden_paths"
     ],
-    "residue_rules": "hidden_eval/residue_rules.yaml",
-    "touched_file_slack": 1
+    "residue_rules": "hidden_eval/residue_rules.json"
   },
   "instruction": "Remove the Slack notifier provider completely while preserving the notifier abstraction and the remaining providers.",
   "mode": "deletion_with_repair",

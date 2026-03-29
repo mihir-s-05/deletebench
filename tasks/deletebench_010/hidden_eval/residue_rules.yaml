@@ -1,7 +1,0 @@
-banned_patterns:
-  - "Not implemented"
-  - "TODO.*remove"
-  - "slack"
-forbidden_symbols:
-  - "slack"
-forbidden_paths:

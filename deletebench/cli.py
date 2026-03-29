@@ -7,7 +7,7 @@ from pathlib import Path
 from deletebench.reporting import format_summary, load_result_payloads, summarize_results
 from deletebench.runner import run_suite, run_task
 from deletebench.tasks.generator import generate_tasks
-from deletebench.tasks.loader import load_task, load_tasks
+from deletebench.tasks.loader import load_task, load_tasks, validate_task, validate_tasks
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -44,6 +44,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     summarize_parser = subparsers.add_parser("summarize", help="Summarize stored evaluation results")
     summarize_parser.add_argument("--results-dir", default="results")
+
+    validate_parser = subparsers.add_parser("validate-tasks", help="Validate task manifests and coverage")
+    validate_parser.add_argument("--tasks-root", default="tasks")
+    validate_parser.add_argument("--json", action="store_true")
 
     return parser
 
@@ -103,6 +107,24 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "summarize":
         payloads = load_result_payloads(Path(args.results_dir))
         print(format_summary(summarize_results(payloads)))
+        return 0
+
+    if args.command == "validate-tasks":
+        results = validate_tasks(args.tasks_root)
+        if args.json:
+            print(json.dumps(results, indent=2, sort_keys=True))
+        else:
+            failed = False
+            for task_id, errors in results.items():
+                if errors:
+                    failed = True
+                    print(f"{task_id}: INVALID")
+                    for error in errors:
+                        print(f"  - {error}")
+                else:
+                    print(f"{task_id}: OK")
+            if failed:
+                return 1
         return 0
 
     parser.error(f"Unknown command: {args.command}")
