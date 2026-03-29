@@ -159,22 +159,27 @@
 
  This is the path for benchmarking real models today.
 
- ## Is this ready to benchmark real models?
+## Is this ready to benchmark real models?
 
- Yes, with one important caveat:
+Yes.
 
- This repository does not yet include built-in SDK adapters for specific model APIs.
- Instead, it exposes a generic `command` agent so you can plug in any model or agent
- you can invoke from a script.
+This repository now includes a built-in OpenAI wrapper script at:
 
- That means:
+- `scripts/run_openai_deletebench.py`
 
- - the benchmark harness is ready now
- - the scoring pipeline is ready now
- - the task suite is ready now
- - you still need a thin wrapper script for your actual model
+It defaults to:
 
- ## How to benchmark a real model right now
+- model: `gpt-5.4-mini`
+
+That means:
+
+- the benchmark harness is ready now
+- the scoring pipeline is ready now
+- the task suite is ready now
+- OpenAI benchmarking is ready now
+- for non-OpenAI providers, you still need a thin wrapper script
+
+## How to benchmark a real model right now
 
  The runner sets these environment variables for the `command` agent:
 
@@ -190,7 +195,65 @@
  3. edit files inside `DELETEBENCH_WORKSPACE`
  4. exit successfully when done
 
- ### Example command-agent run
+### OpenAI quick start for `gpt-5.4-mini`
+
+Install the optional dependency:
+
+```bash
+pip install -e ".[openai]"
+```
+
+Set your API key:
+
+```bash
+export OPENAI_API_KEY="your_api_key_here"
+```
+
+Run one task with the built-in OpenAI wrapper:
+
+```bash
+python3 -m deletebench.cli run-task deletebench_004 \
+  --tasks-root tasks \
+  --agent command \
+  --agent-command "python3 scripts/run_openai_deletebench.py" \
+  --output-dir results/openai-gpt-5_4-mini
+```
+
+Run the full suite:
+
+```bash
+python3 -m deletebench.cli run-suite \
+  --tasks-root tasks \
+  --agent command \
+  --agent-command "python3 scripts/run_openai_deletebench.py" \
+  --output-dir results/openai-gpt-5_4-mini
+```
+
+Summarize:
+
+```bash
+python3 -m deletebench.cli summarize --results-dir results/openai-gpt-5_4-mini
+```
+
+### OpenAI wrapper configuration
+
+The built-in wrapper reads:
+
+- `OPENAI_API_KEY` (required)
+- `DELETEBENCH_OPENAI_MODEL` (optional, defaults to `gpt-5.4-mini`)
+- `DELETEBENCH_OPENAI_REASONING_EFFORT` (optional, defaults to `medium`)
+- `DELETEBENCH_OPENAI_VERBOSITY` (optional, defaults to `low`)
+
+Example:
+
+```bash
+export OPENAI_API_KEY="your_api_key_here"
+export DELETEBENCH_OPENAI_MODEL="gpt-5.4-mini"
+export DELETEBENCH_OPENAI_REASONING_EFFORT="medium"
+export DELETEBENCH_OPENAI_VERBOSITY="low"
+```
+
+### Generic command-agent run
 
  ```bash
  python3 -m deletebench.cli run-task deletebench_004 \
@@ -210,9 +273,9 @@
    --output-dir results
  ```
 
- ## Minimal wrapper example
+## Minimal wrapper example
 
- Example `scripts/run_model.py`:
+Example custom wrapper `scripts/run_model.py`:
 
  ```python
  import os
@@ -236,6 +299,28 @@
  - send them with the prompt to your model
  - parse the model output
  - apply file edits into the workspace
+
+## What the built-in OpenAI wrapper does
+
+`scripts/run_openai_deletebench.py`:
+
+- snapshots the current workspace text files
+- sends the task prompt plus workspace contents to OpenAI Responses API
+- asks for structured file operations
+- applies returned writes/deletes into the workspace
+
+The current implementation is intentionally simple and v0-friendly:
+
+- it operates over text files only
+- it truncates very large files
+- it relies on structured output for edit application
+
+If you want stronger performance later, likely improvements are:
+
+- multi-turn repair loops
+- file selection / retrieval instead of whole-workspace snapshots
+- patch-oriented outputs instead of full file rewrites
+- model-specific retry logic
 
  ## What gets scored
 

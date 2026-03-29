@@ -7,11 +7,12 @@ name = "deletebench"
 version = "0.1.0"
 description = "Outcome-based benchmark harness for subtractive engineering tasks"
 requires-python = ">=3.11"
-authors = [{name = "OpenAI"}]
+authors = [{name = "DeleteBench Contributors"}]
 dependencies = []
 
 [project.optional-dependencies]
 dev = []
+openai = ["openai"]
 
 [project.scripts]
 deletebench = "deletebench.cli:main"
